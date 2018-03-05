@@ -1,0 +1,13 @@
+[Unit]
+Description=Monkey HTTP Server
+Requires=network.target
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/sbin/monkey --daemon
+PIDFile=/usr/local/var/run//monkey.pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
