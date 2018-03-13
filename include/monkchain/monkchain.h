@@ -24,8 +24,16 @@
 #include <monkchain/mc_macros.h>
 #include <monkchain/mc_blockchain.h>
 #include <monkchain/mc_log.h>
+#include <monkchain/mc_utils.h>
 
-#define MCHAIN_ENV_PATH   ".monkchain"
-#define MCHAIN_FILE_FMT   "blk%08i.dat"
+#define MC_MAGIC_NUMBER  0xEE004B4D
+#define MC_VERSION       1
+#define MC_GENESIS_INIT    "Blockchain Learning..."
+#define MC_GENESIS_TS      0011223455
+
+/* File system blocks related info */
+#define MCHAIN_ENV_PATH        ".monkchain"
+#define MCHAIN_FILE_FMT        "blk%08i.dat"
+
 
 #endif

@@ -20,9 +20,6 @@
 #ifndef MC_BLOCKCHAIN_H
 #define MC_BLOCKCHAIN_H
 
-#define MC_MAGIC_NUMBER  0xEE004B4D
-#define MC_VERSION       1
-
 #include <monkchain/monkchain.h>
 
 #include <sys/types.h>
@@ -30,19 +27,25 @@
 #include <unistd.h>
 
 struct mc_block {
-    /* Block Header */
+    /* Data format ID */
     uint32_t magic_number;
+
+    /* Block size excluding magic_number and this field */
+    uint32_t size;
+
+    /* Block Header */
     uint32_t version;
+    uint32_t timestamp;
     uint32_t block_id;
     unsigned char prev_hash[32];
-    uint32_t timestamp;
 
-    uint32_t block_size;
+    /* Merkle Root */
+    unsigned char merkle_root[32];
 
-    unsigned char hash[32];
-    //unsigned char merkle_root[32];
+    /* Transaction Number */
+
+    /* Transactions */
 };
-
 
 /* Informational blocks as a linked list */
 struct mc_block_info {
@@ -54,8 +57,14 @@ struct mc_block_info {
 
 int mc_env_default(char *path, int size);
 int mc_create_environment(char *root);
-struct mc_block *mc_block_create(char *root);
+struct mc_block *mc_block_create(char *root, char *parent_hash);
 struct mk_list *mc_block_list_create(char *root, int *count);
+
+int mc_block_save(struct mc_block *block, char *root);
+void mc_block_hash(struct mc_block *block, unsigned char *hash);
+void mc_block_hash_string(struct mc_block *block, char *str_hash);
+
 int mc_block_list_destroy(struct mk_list *list);
+void mc_block_print_info(struct mc_block_info *bi);
 
 #endif
