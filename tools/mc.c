@@ -180,7 +180,7 @@ int main(int argc, char **argv)
     while ((opt = getopt_long(argc, argv, "I::i:blh", long_opts, NULL)) != -1) {
         switch (opt) {
         case 'I':
-            ret = mc_create_environment(optarg);
+            ret = mc_env_create(optarg);
             return ret;
         case 'i':
             ret = cmd_info(optarg);
