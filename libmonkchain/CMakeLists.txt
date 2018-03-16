@@ -1,5 +1,6 @@
 set(src
   mc_os.c
+  mc_env.c
   mc_log.c
   mc_utils.c
   mc_blockchain.c

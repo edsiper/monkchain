@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
-/*  BChain
- *  ======
+/*  MonkChain
+ *  =========
  *  Copyright (C) 2018 Eduardo Silva <eduardo@monkey.io>
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,24 +17,10 @@
  *  limitations under the License.
  */
 
-#ifndef MCHAIN_H
-#define MCHAIN_H
+#ifndef MC_ENV_H
+#define MC_ENV_H
 
-#include <monkey/mk_core.h>
-#include <monkchain/mc_macros.h>
-#include <monkchain/mc_blockchain.h>
-#include <monkchain/mc_log.h>
-#include <monkchain/mc_utils.h>
-#include <monkchain/mc_env.h>
-
-#define MC_MAGIC_NUMBER  0xEE004B4D
-#define MC_VERSION       1
-#define MC_GENESIS_INIT    "Blockchain Learning..."
-#define MC_GENESIS_TS      0011223455
-
-/* File system blocks related info */
-#define MCHAIN_ENV_PATH        ".monkchain"
-#define MCHAIN_FILE_FMT        "blk%08i.dat"
-
+int mc_env_default(char *path, int size);
+int mc_env_create(char *root);
 
 #endif

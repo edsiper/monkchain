@@ -55,8 +55,6 @@ struct mc_block_info {
     struct mk_list _head;
 };
 
-int mc_env_default(char *path, int size);
-int mc_create_environment(char *root);
 struct mc_block *mc_block_create(char *root, char *parent_hash);
 struct mk_list *mc_block_list_create(char *root, int *count);
 
@@ -66,5 +64,6 @@ void mc_block_hash_string(struct mc_block *block, char *str_hash);
 
 int mc_block_list_destroy(struct mk_list *list);
 void mc_block_print_info(struct mc_block_info *bi);
+void mc_block_genesis_parent(unsigned char *hash);
 
 #endif
