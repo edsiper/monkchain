@@ -1,8 +1,8 @@
 # MonkChain
 
-A simple and incomplete Blockchain implementation for learning purposes.
+A simple (and incomplete) Blockchain implementation for learning purposes.
 
-DISCLAIMER: this code it's a basic library to create and manage blocks: no proof-of-work, no networking and no mining yet.
+DISCLAIMER: this code it's a basic library to create and manage blocks: no proof-of-work, no networking and no mining _yet_.
 
 ## Getting Started
 
@@ -17,25 +17,42 @@ $ make
 Initialize the environment:
 
 ```
-$ tools/mc -i
-[2018/03/05 10:33:26] [ info] [create env] path /home/edsiper/.monkchain OK
-[2018/03/05 10:33:26] [ info] [block] Generate block #0 hash=cc71301d8d6fba08d5eb3933ffb191413dfbda7669691ba0d6cee757ed7bba3f
+$ tools/mc -I
+[2018/03/15 21:21:28] [ info] [create env] path /home/edsiper/.monkchain OK
+[2018/03/15 21:21:28] [ info] [block] Generate block #0 hash=b4382f161a3458acf0c8184feecd32ccc466c58651ae893a03198fbcd19f6ffd
 ```
 
 List Blocks
 
 ```
 $ tools/mc -l
-[blk 00000000] cc71301d8d6fba08d5eb3933ffb191413dfbda7669691ba0d6cee757ed7bba3f /home/edsiper/.monkchain/blk00000000.dat
+[2018/03/15 21:21:50] [ info] [blk 00000000] b4382f161a3458acf0c8184feecd32ccc466c58651ae893a03198fbcd19f6ffd /home/edsiper/.monkchain/blk00000000.dat
 ```
 
 Add new Blocks
 
 ```
 $ tools/mc -b
-[2018/03/05 10:33:50] [ info] [block] Generate block #1 hash=8bbd2b7496c11933719e8e3f7e9eb8f300e90e3ad5f6b4afd51213beb1d66f82
-hash=8bbd2b7496c11933719e8e3f7e9eb8f300e90e3ad5f6b4afd51213beb1d66f82
+[2018/03/15 21:22:05] [ info] [block] Generate block #1 hash=4126299a02c18466208794d14b93d2c4988255617f00bc7e8c765bf5841d1776
 ```
+
+Get Block Information
+
+```
+$ tools/mc -i 4126299a02c18466208794d14b93d2c4988255617f00bc7e8c765bf5841d1776
+[2018/03/15 21:23:15] [ info] [info]
+Block Details
+ [+] hash     =>  4126299a02c18466208794d14b93d2c4988255617f00bc7e8c765bf5841d1776
+ [+] parent   =>  b4382f161a3458acf0c8184feecd32ccc466c58651ae893a03198fbcd19f6ffd
+ [+] size     =>  76
+ [+] created  =>  2018-03-16 03:22:05
+
+File System
+ [+] path     =>  /home/edsiper/.monkchain/blk00000001.dat
+ [+] size     =>  84 bytes (84b)
+```
+
+
 
 ## Author
 
