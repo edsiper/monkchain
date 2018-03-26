@@ -35,7 +35,7 @@ static void mc_help(int rc)
     exit(rc);
 }
 
-static int cmd_list_blocks()
+static int cmd_list_blocks(char *env_path)
 {
     int i;
     int off;
@@ -48,9 +48,14 @@ static int cmd_list_blocks()
     struct mk_list *list;
     struct mc_block_info *bi;
 
-    ret = mc_env_default(tmp, sizeof(tmp) - 1);
-    if (ret != 0) {
-        return -1;
+    if (!env_path) {
+        ret = mc_env_default(tmp, sizeof(tmp) - 1);
+        if (ret != 0) {
+            return -1;
+        }
+    }
+    else {
+        strcpy(tmp, env_path);
     }
 
     list = mc_block_list_create(tmp, &count);
@@ -125,6 +130,14 @@ static int cmd_info(char *str_hash)
         return -1;
     }
 
+    /* Query the last block */
+    if (str_hash == NULL) {
+        b = mk_list_entry_last(list, struct mc_block_info, _head);
+        mc_block_print_info(b);
+        mc_block_list_destroy(list);
+        return 0;
+    }
+
     /*
      * Convert string-hash to binary:
      *
@@ -168,28 +181,48 @@ int main(int argc, char **argv)
     int ret;
     int opt;
     int optid = 1;
+    char *env_path = NULL;
 
     static const struct option long_opts[] = {
-        {"init",  optional_argument, NULL, 'I'},
-        {"info",  required_argument, NULL, 'i'},
-        {"block", no_argument      , NULL, 'b'},
-        {"list",  no_argument      , NULL, 'l'},
-        {"help",  no_argument      , NULL, 'h'},
+        {"environment", required_argument, NULL, 'e'},
+        {"init"       , optional_argument, NULL, 'I'},
+        {"info"       , optional_argument, NULL, 'i'},
+        {"block"      , no_argument      , NULL, 'b'},
+        {"list"       , no_argument      , NULL, 'l'},
+        {"help"       , no_argument      , NULL, 'h'},
     };
 
-    while ((opt = getopt_long(argc, argv, "I::i:blh", long_opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "e:I::i::blh", long_opts, NULL)) != -1) {
         switch (opt) {
+        case 'e':
+            env_path = strdup(optarg);
+            break;
         case 'I':
-            ret = mc_env_create(optarg);
+            /* Special handle for optional argument */
+            if (!optarg && argv[optind] != NULL &&  \
+                argv[optind][0] != '-') {
+                optarg = argv[optind++];
+            }
+            if (env_path) {
+                ret = mc_env_create(env_path);
+            }
+            else {
+                ret = mc_env_create(optarg);
+            }
             return ret;
         case 'i':
+            /* Special handle for optional argument */
+            if (!optarg && argv[optind] != NULL &&  \
+                argv[optind][0] != '-') {
+                optarg = argv[optind++];
+            }
             ret = cmd_info(optarg);
             return ret;
         case 'b':
             ret = cmd_block_create();
             return ret;
         case 'l':
-            ret = cmd_list_blocks();
+            ret = cmd_list_blocks(env_path);
             return ret;
         case 'h':
             mc_help(0);
