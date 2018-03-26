@@ -131,7 +131,9 @@ struct mc_block *mc_block_read(char *file)
     /* Read block info */
     fr = fread(block, sizeof(struct mc_block), 1, f);
     if (fr != 1) {
-        mc_errno();
+        if (errno != 0) {
+            mc_errno();
+        }
         fclose(f);
         free(block);
         return NULL;
@@ -234,7 +236,54 @@ void mc_block_hash(struct mc_block *block, unsigned char *hash)
     SHA256_Update(&ctx, &block->timestamp, sizeof(block->timestamp));
     SHA256_Update(&ctx, &block->block_id, sizeof(block->block_id));
     SHA256_Update(&ctx, &block->prev_hash, sizeof(block->prev_hash));
+    SHA256_Update(&ctx, &block->nonce, sizeof(block->nonce));
     SHA256_Final(hash, &ctx);
+}
+
+/*
+ * This function is used by the mining process to reduce the computing time
+ * when generating the final hash. We aim to skip the first 4 SHA256_Update()
+ * and just update the final result with a given nonce on cache_do().
+  */
+static void mc_block_mine_hash_cache_init(SHA256_CTX *ctx, struct mc_block *block)
+{
+    SHA256_Init(ctx);
+    SHA256_Update(ctx, &block->version, sizeof(block->version));
+    SHA256_Update(ctx, &block->timestamp, sizeof(block->timestamp));
+    SHA256_Update(ctx, &block->block_id, sizeof(block->block_id));
+    SHA256_Update(ctx, &block->prev_hash, sizeof(block->prev_hash));
+}
+
+static void mc_block_mine_hash_cache_do(SHA256_CTX *ctx, uint32_t nonce,
+                                        unsigned char *hash)
+{
+    SHA256_CTX tmp;
+
+    memcpy(&tmp, ctx, sizeof(SHA256_CTX));
+    SHA256_Update(&tmp, &nonce, sizeof(nonce));
+    SHA256_Final(hash, &tmp);
+}
+
+/* Mine a block */
+void mc_block_mine(struct mc_block *block, int difficulty)
+{
+    unsigned char hash[32];
+    unsigned char expect[32];
+    char tmp[65];
+    SHA256_CTX ctx;
+
+    memset(&expect, 0, sizeof(expect));
+    mc_block_hash(block, (unsigned char *) &hash);
+
+    /* Initialize hash cache */
+    mc_block_mine_hash_cache_init(&ctx, block);
+    mc_block_mine_hash_cache_do(&ctx, block->nonce, (unsigned char *) &hash);
+
+    /* Try to find the right hash using a different nonce */
+    while (memcmp(hash, expect, difficulty) != 0) {
+        block->nonce++;
+        mc_block_mine_hash_cache_do(&ctx, block->nonce, (unsigned char *) &hash);
+    }
 }
 
 void mc_block_hash_string(struct mc_block *block, char *str_hash)
@@ -299,7 +348,7 @@ struct mc_block *mc_block_create(char *root, char *parent_hash)
     struct mc_block *latest;
     struct mc_block *block;
 
-    block = malloc(sizeof(struct mc_block));
+    block = calloc(1, sizeof(struct mc_block));
     if (!block) {
         mc_errno();
         return NULL;
@@ -308,6 +357,7 @@ struct mc_block *mc_block_create(char *root, char *parent_hash)
     block->magic_number = MC_MAGIC_NUMBER;
     block->size = sizeof(struct mc_block) - (sizeof(uint32_t) * 2);
     block->version = MC_VERSION;
+    block->nonce = 0;
 
     /* Get the latest block */
     latest = mc_block_get_latest(root);
@@ -328,9 +378,13 @@ struct mc_block *mc_block_create(char *root, char *parent_hash)
         else {
             mc_block_hash(latest, (unsigned char *) &block->prev_hash);
         }
+        free(latest);
     }
 
     mc_block_hash(block, (unsigned char *) &hash);
+    mc_block_mine(block, MCHAIN_DIFFICULTY);
+    mc_block_hash(block, (unsigned char *) &hash);
+
     mc_utils_hash_to_string(hash, tmp);
     mc_info("[block] Generate block #%i hash=%s", block->block_id, tmp);
 

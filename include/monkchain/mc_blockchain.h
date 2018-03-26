@@ -37,6 +37,7 @@ struct mc_block {
     uint32_t version;
     uint32_t timestamp;
     uint32_t block_id;
+    uint32_t nonce;
     unsigned char prev_hash[32];
 
     /* Merkle Root */
@@ -53,6 +54,11 @@ struct mc_block_info {
     struct stat st;
     struct mc_block block;
     struct mk_list _head;
+};
+
+/* Monkchain object context */
+struct mc_blockchain {
+
 };
 
 struct mc_block *mc_block_create(char *root, char *parent_hash);
