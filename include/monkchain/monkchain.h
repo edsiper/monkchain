@@ -36,5 +36,7 @@
 #define MCHAIN_ENV_PATH        ".monkchain"
 #define MCHAIN_FILE_FMT        "blk%08i.dat"
 
+/* Fixed values to be replaced in the future by a good algorithm */
+#define MCHAIN_DIFFICULTY      2
 
 #endif
